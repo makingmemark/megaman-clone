@@ -4,5 +4,5 @@ export default defineConfig({
   server: {
     port: 3004
   },
-  target: 'esnext'
+  target: 'es2022', // or 'es2023' or 'esnext'
 })

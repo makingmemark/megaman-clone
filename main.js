@@ -12,53 +12,58 @@ import { HeroHp } from "./src/classes/HeroHp.js";
 import { DrewMan_Stage } from "./src/stages/DrewMan_Stage.js";
 import { loader } from "./src/resources.js";
 
-const game = new ex.Engine({
-  width: 256 * SCALE,
-  height: 240 * SCALE,
-  fixedUpdateFps: 60,
-  antialiasing: false, // Pixel art graphics
-});
+async function main() {
+  const game = new ex.Engine({
+    width: 256 * SCALE,
+    height: 240 * SCALE,
+    fixedUpdateFps: 60,
+    antialiasing: false, // Pixel art graphics
+  });
 
-// Set global gravity
-ex.Physics.acc = new ex.Vector(0, 1500);
+  // Set global gravity
+  ex.Physics.acc = new ex.Vector(0, 1500);
 
-// Global state classes
-const mmHp = new HeroHp(game);
+  // Global state classes
+  const mmHp = new HeroHp(game);
 
-//-----------------------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------------------
 
-const stage = new DrewMan_Stage();
-stage.rooms.forEach((room) => {
-  game.add(room);
-});
+  const stage = new DrewMan_Stage();
+  stage.rooms.forEach((room) => {
+    game.add(room);
+  });
 
-const hero = new Hero(45 * SCALED_CELL, 2 * SCALED_CELL);
-game.add(hero);
-const cameraStrategy = new MM_CameraStrategy(hero);
-cameraStrategy.setRoomLimits(stage.firstMap.limits);
+  const hero = new Hero(45 * SCALED_CELL, 2 * SCALED_CELL);
+  game.add(hero);
+  const cameraStrategy = new MM_CameraStrategy(hero);
+  cameraStrategy.setRoomLimits(stage.firstMap.limits);
 
-const lifebar = new Lifebar();
-game.add(lifebar);
+  const lifebar = new Lifebar();
+  game.add(lifebar);
 
-game.on("initialize", () => {
-  game.currentScene.camera.addStrategy(cameraStrategy);
-  game.currentScene.world.queryManager.createQuery([TAG_HERO]);
-});
+  game.on("initialize", () => {
+    game.currentScene.camera.addStrategy(cameraStrategy);
+    game.currentScene.world.queryManager.createQuery([TAG_HERO]);
+  });
 
-game.on(CUSTOM_EVENT_CAMERA_Y_CHANGE, async ({ yPos, direction, room }) => {
-  // Change Y position
-  cameraStrategy.onPinChange(yPos);
-  cameraStrategy.setRoomLimits(room.limits);
+  game.on(CUSTOM_EVENT_CAMERA_Y_CHANGE, async ({ yPos, direction, room }) => {
+    // Change Y position
+    cameraStrategy.onPinChange(yPos);
+    cameraStrategy.setRoomLimits(room.limits);
 
-  hero.setTransitioningRooms(direction);
+    hero.setTransitioningRooms(direction);
 
-  // Let the camera catch up
-  await hero.actions.delay(1500).toPromise();
+    // Let the camera catch up
+    await hero.actions.delay(1500).toPromise();
 
-  hero.setTransitioningRooms(null);
-});
+    hero.setTransitioningRooms(null);
+  });
 
-await game.start(loader);
+  await game.start(loader);
 
-mmHp.init();
-mmHp.hero = hero;
+  mmHp.init();
+  mmHp.hero = hero;
+}
+
+// Call the main function to start the game
+main();
